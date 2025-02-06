@@ -4,13 +4,13 @@ const supabase = require('../config/supabase');
 const registerForEvent = async (req, res) => {
     const { event_id } = req.body;
     const roll_no = req.user.roll_no; // Extract roll_no from session token
-
+    console.log(roll_no)
     if (!event_id) return res.status(400).json({ error: "Event ID is required" });
 
     const { data: event, error: eventError } = await supabase
         .from('event')
         .select('*')
-        .eq('id', event_id)
+        .eq('event_id', event_id)
         .single();
 
     if (!event || eventError) return res.status(404).json({ error: "Event not found" });
@@ -29,7 +29,9 @@ const registerForEvent = async (req, res) => {
         .from('registration')
         .insert([{ roll_no, event_id }]);
 
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+        console.log(error);
+        return res.status(500).json({ error: error.message });}
 
     res.status(201).json({ message: "Successfully registered for the event!" });
 };

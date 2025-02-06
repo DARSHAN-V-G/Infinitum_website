@@ -5,8 +5,8 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 router.get('/', getAllEvents);                     
-router.post('/register/:eventid', authMiddleware, registerForEvent);  
-router.post('/create', createEvent);  
-router.get('/fetch/:event_id', authMiddleware, getStudentsByEvent);
+router.post('/register', authMiddleware, registerForEvent);  
+router.post('/create',authMiddleware, createEvent);  
+router.get('/fetch/:event_id', authMiddleware,getStudentsByEvent);
 
 module.exports = router;
