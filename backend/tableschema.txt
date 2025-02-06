@@ -1,0 +1,64 @@
+student table :
+
+CREATE TABLE student (
+    roll_no VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    phn_no VARCHAR(20) NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+event table:
+
+CREATE TABLE event (
+    id BIGSERIAL PRIMARY KEY,
+    event_id BIGINT UNIQUE NOT NULL,
+    event_name VARCHAR NOT NULL,
+    description JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+registration table:
+
+CREATE TABLE registration (
+    roll_no VARCHAR NOT NULL,
+    event_id BIGINT NOT NULL,
+    registered_at TIMESTAMP DEFAULT now(),
+
+    
+
+    PRIMARY KEY (roll_no, event_id),
+    FOREIGN KEY (roll_no) REFERENCES student(roll_no) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES event(event_id) ON DELETE CASCADE
+);
+
+
+
+'{backend_url}/api/auth/register' - post
+
+body Example:
+{
+    "roll_no": "23N213",
+    "name": "Darshan V G",
+    "email": "23N213@psgtech.ac.in",
+    "phn_no": "9790521129",
+    "password": "darshan1222",
+    "year" : 2,
+    "department" : "CSE-AIML"
+}
+
+response:
+message:'Registration succesful',
+token
+
+'{backend_url}/api/auth/login' - post
+body example :
+{
+    "roll_no": "23N213",
+    "password": "darshan1222"
+}
+
+response:
+token
+
