@@ -1,13 +1,19 @@
-FROM node:18-alpine
+FROM node:18-slim  
 
-WORKDIR /app
+# Set the working directory inside the container to /app/backend
+WORKDIR /app/backend
 
-COPY package*.json ./
+# Copy only package.json and package-lock.json for dependency installation
+COPY backend/package*.json ./
 
-RUN npm install
+# Install dependencies
+RUN npm install --legacy-peer-deps 
 
-COPY . .
+# Copy the rest of your app's code into the container
+COPY backend/ .
 
-EXPOSE 4000
+# Expose the port your app runs on (modify according to your app)
+EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+# Start the application
+CMD ["npm", "start"]
