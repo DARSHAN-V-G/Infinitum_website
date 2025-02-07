@@ -1,6 +1,3 @@
-Here’s your **README.md** in a clean, organized format:  
-
-```markdown
 # Infinitum Backend  
 
 This is the backend for the **Infinitum Registration Website**. It provides APIs for user authentication, event management, and student-related functionalities.  
