@@ -2,9 +2,8 @@ const supabase = require('../config/supabase');
 
 
 const registerForEvent = async (req, res) => {
-    const { event_id } = req.body;
-    const roll_no = req.user.roll_no; // Extract roll_no from session token
-    console.log(roll_no)
+    const { event_id } = req.params;
+    const roll_no = req.user.roll_no; 
     if (!event_id) return res.status(400).json({ error: "Event ID is required" });
 
     const { data: event, error: eventError } = await supabase
