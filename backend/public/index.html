@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Generate Your Certificate</h1>
+    <input type="text" id="name" placeholder="Enter your name">
+    <button onclick="generateCertificate()">Generate & Download</button>
+
+    <script>
+        async function generateCertificate() {
+            const name = document.getElementById("name").value;
+            if (!name) return alert("Please enter your name");
+
+            const response = await fetch("http://localhost:3000/api/certificate/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name }),
+            });
+
+            if (response.ok) {
+                const blob = await response.blob(); // Convert response to binary data
+                const url = window.URL.createObjectURL(blob); // Create download link
+
+                // Create an anchor tag and trigger the download
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "Certificate.pdf";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Cleanup object URL
+                window.URL.revokeObjectURL(url);
+            } else {
+                alert("Error generating certificate");
+            }
+        }
+    </script>
+</body>
+</html>
