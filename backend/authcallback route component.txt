@@ -1,0 +1,51 @@
+//need to add in frontend
+REASON - supabase doesn't pass the callback url in query format so we can't extract the access_token and provider token in backend, instead it need to be extracted in frontend using window.location.hash
+
+
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+
+const AuthCallback = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const hashParams = new URLSearchParams(location.hash.substring(1));
+        const accessToken = hashParams.get("access_token");
+        const providerToken = hashParams.get("provider_token");
+
+        if (accessToken && providerToken) {
+            exchangeTokenForSession(accessToken, providerToken);
+        } else {
+            console.error("Required tokens not found in URL");
+            navigate("/login"); 
+        }
+    }, [location]);
+
+    const exchangeTokenForSession = async (access_token, provider_token) => {
+        try {
+            const response = await axios.post(
+                "http://localhost:4000/api/auth/callback", 
+                { access_token, provider_token }, 
+                { withCredentials: true, headers: { "Content-Type": "application/json" } }
+            );
+
+            localStorage.setItem("token", response.data.token);
+            navigate("/dashboard");
+
+        } catch (err) {
+            if (err.response?.status === 404 && err.response?.data?.message === "Student not found") {
+                console.warn("Student not found, redirecting to register...");
+                navigate("/register");
+            } else {
+                console.error("Google login failed:", err.response?.data || err.message);
+                navigate("/login");
+            }
+        }
+    };
+
+    return <h2>Processing login...</h2>;
+};
+
+export default AuthCallback;
