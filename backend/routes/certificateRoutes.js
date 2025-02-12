@@ -1,10 +1,10 @@
-const express = require("express");
-const { generateCertificate } = require("../controllers/certificateController");
-const { sendCertificateEmail } = require("../controllers/emailController");
+const express = require('express');
+const { generateCertificates } = require('../controllers/certificateController');
+const { sendCertificates } = require('../controllers/EmailController');
 
 const router = express.Router();
 
-router.post("/generate", generateCertificate);
-router.post("/send-email", sendCertificateEmail);
+router.post('/generate-certificates', generateCertificates);
+router.post('/send-certificates', sendCertificates);
 
 module.exports = router;
