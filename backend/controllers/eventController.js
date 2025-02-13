@@ -2,7 +2,7 @@ const supabase = require('../config/supabase');
 
 
 const registerForEvent = async (req, res) => {
-    const { event_id } = req.params;
+    const { event_id } = req.body;
     const roll_no = req.user.roll_no; 
     if (!event_id) return res.status(400).json({ error: "Event ID is required" });
 
@@ -40,7 +40,6 @@ const registerForEvent = async (req, res) => {
 const getAllEvents = async (req, res) => {
     const { data, error } = await supabase.from('event').select('*');
     if (error) return res.status(500).json({ error: error.message });
-    console.log(data);
     res.status(201).json(data);
 };
 
