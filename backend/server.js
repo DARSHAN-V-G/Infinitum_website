@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const studentRoutes = require('./routes/studentRoutes')
 const certificateRoutes = require('./routes/certificateRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes')
 const bodyParser = require("body-parser");
 dotenv.config();
 console.log("Connected to supabase");
@@ -18,9 +19,10 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/event', eventRoutes); 
+app.use('/api/event', eventRoutes);
 app.use('/api/student',studentRoutes)
 app.use("/api/certificate", certificateRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 
 app.listen(process.env.PORT, () => {
