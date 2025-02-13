@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerWithEmail, login ,logout,googleLogin,handleGoogleLogin} = require('../controllers/authcontroller');
+const { registerWithEmail, login ,logout,googleLogin,handleGoogleLogin} = require('../controllers/authController');
 const router = express.Router();
 
 router.post('/register', registerWithEmail); //general registration
