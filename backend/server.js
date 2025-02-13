@@ -11,7 +11,10 @@ const bodyParser = require("body-parser");
 dotenv.config();
 console.log("Connected to supabase");
 const app = express();
-app.use(cors({ origin: (origin, callback) => callback(null, true), credentials: true }));
+app.use(cors({
+    origin: "*", // Allows all origins (not recommended for production)
+    credentials: true, // Allows cookies and authentication headers
+  }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
