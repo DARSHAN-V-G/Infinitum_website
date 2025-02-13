@@ -1,7 +1,7 @@
 FROM node:18-slim  
 
 # Set the working directory inside the container to /app/backend
-WORKDIR /app/backend
+WORKDIR /backend
 
 # Copy only package.json and package-lock.json for dependency installation
 COPY backend/package*.json ./
