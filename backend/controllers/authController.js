@@ -8,7 +8,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 const registerWithEmail = async (req, res) => {
     try {
-        const { roll_no, name, email, phn_no, department, year, password } = req.body;
+        const { roll_no, name, email, phn_no, department, year} = req.body;
         const { data: existingUser, error: checkError } = await supabase
             .from('student')
             .select('roll_no')
@@ -23,11 +23,9 @@ const registerWithEmail = async (req, res) => {
         if (email !== expectedEmail) {
             return res.status(400).json({ error: "Invalid email format!" });
         }
-        roll_no = roll_no.toUpperCase(); //changing the roll no uppercase
-        const hashedPassword = await bcrypt.hash(password, 10);
 
         const { data, error } = await supabase.from('student').insert([
-            { roll_no, name, email, phn_no, department, year, password: hashedPassword }
+            { roll_no, name, email, phn_no, department, year}
         ]);
 
         if (error) throw error; 

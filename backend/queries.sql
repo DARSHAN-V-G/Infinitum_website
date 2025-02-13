@@ -4,8 +4,7 @@ CREATE TABLE IF NOT EXISTS student (
     email VARCHAR(255) UNIQUE NOT NULL,
     phn_no VARCHAR(10) NOT NULL,
     year VARCHAR(5) NOT NULL,
-    department VARCHAR(20), NOT NULL,
-    password TEXT NOT NULL,
+    department VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
 
