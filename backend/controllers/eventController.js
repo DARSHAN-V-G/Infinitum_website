@@ -40,7 +40,6 @@ const registerForEvent = async (req, res) => {
 const getAllEvents = async (req, res) => {
     const { data, error } = await supabase.from('event').select('*');
     if (error) return res.status(500).json({ error: error.message });
-    console.log(data);
     res.status(201).json(data);
 };
 
