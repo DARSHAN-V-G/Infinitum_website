@@ -6,7 +6,7 @@ dotenv.config();
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-const registerWithEmail = async (req, res) => {
+const register = async (req, res) => {
     try {
         const { roll_no, name, email, phn_no, department, year} = req.body;
         const { data: existingUser, error: checkError } = await supabase
@@ -35,23 +35,6 @@ const registerWithEmail = async (req, res) => {
         res.status(201).json({ message: 'User registered successfully', token });
     } catch (err) {
         res.status(400).json({ error: err.message });
-    }
-};
-
-const login = async (req, res) => {
-    try {
-        const { roll_no, password } = req.body;
-        const { data, error } = await supabase.from('student').select('*').eq('roll_no', roll_no).single();
-
-        if (error || !data) return res.status(400).json({ error: 'Invalid credentials' });
-
-        const isMatch = await bcrypt.compare(password, data.password);
-        if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
-
-        const token = jwt.sign({ roll_no: data.roll_no }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-        res.json({ token });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
     }
 };
 
@@ -125,4 +108,4 @@ const handleGoogleLogin = async (req, res) => {
     }
 };
 
-module.exports = { registerWithEmail, login, logout, googleLogin,handleGoogleLogin};
+module.exports = { register, logout, googleLogin,handleGoogleLogin};
