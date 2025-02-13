@@ -11,10 +11,18 @@ const bodyParser = require("body-parser");
 dotenv.config();
 console.log("Connected to supabase");
 const app = express();
+const allowedOrigins = [process.env.FRONTEND_URL]
 app.use(cors({
-    origin: "*", // Allows all origins (not recommended for production)
-    credentials: true, // Allows cookies and authentication headers
-  }));
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      var msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
