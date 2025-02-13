@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS event (
 CREATE TABLE IF NOT EXISTS registration (
     roll_no VARCHAR(10) NOT NULL,
     event_id BIGINT NOT NULL,
+    attended INT NOT NULL DEFAULT 0,
     registered_at TIMESTAMP DEFAULT now(),
     PRIMARY KEY (roll_no, event_id),
     FOREIGN KEY (roll_no) REFERENCES student(roll_no) ON DELETE CASCADE,
