@@ -47,6 +47,9 @@ const getAllEvents = async (req, res) => {
 
 const getStudentsByEvent = async (req, res) => {
     try {
+        if(req.user.username!=="infinitum"){
+            return res.status(400).json({ error: "Invalid credentials" });
+        }
         const { event_id } = req.params;
 
         const { data, error } = await supabase

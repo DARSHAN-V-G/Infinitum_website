@@ -8,22 +8,16 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 const register = async (req, res) => {
     try {
-        const { roll_no, name, email, phn_no, department, year} = req.body;
+        const { roll_no, name, phn_no, department, year} = req.body;
         const { data: existingUser, error: checkError } = await supabase
             .from('student')
             .select('roll_no')
             .eq('roll_no', roll_no)
             .single();
-
+        const email = `${roll_no.toLowerCase()}@psgtech.ac.in`
         if (existingUser) {
             return res.status(400).json({ error: "Roll number already exists!" });
         }
-
-        const expectedEmail = `${roll_no}@psgtech.ac.in`;
-        if (email !== expectedEmail) {
-            return res.status(400).json({ error: "Invalid email format!" });
-        }
-
         const { data, error } = await supabase.from('student').insert([
             { roll_no, name, email, phn_no, department, year}
         ]);
@@ -108,4 +102,45 @@ const handleGoogleLogin = async (req, res) => {
     }
 };
 
-module.exports = { register, logout, googleLogin,handleGoogleLogin};
+const adminRegister = async (req, res) => {
+    const { username, password } = req.body;
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Insert into Supabase PostgreSQL
+    const { data, error } = await supabase
+        .from("admin")
+        .insert([{ username, password: hashedPassword }]);
+
+    if (error) return res.status(400).json({ error: error.message });
+
+    res.json({ message: "Admin registered successfully", admin: data });
+};
+
+const adminLogin = async (req, res) => {
+    const { username, password } = req.body;
+    
+    // Fetch admin from DB
+    const { data, error } = await supabase
+        .from("admin")
+        .select("*")
+        .eq("username", username)
+        .single();
+
+    if (error || !data) return res.status(400).json({ error: "Invalid credentials" });
+
+    // Compare password
+    const validPassword = await bcrypt.compare(password, data.password);
+    if (!validPassword) return res.status(400).json({ error: "Invalid credentials" });
+
+    // Generate JWT Token
+    const token = jwt.sign({ username: data.username }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "1h"
+    });
+
+    res.json({ message: "Login successful", token });
+};
+
+module.exports = { register, logout, googleLogin,handleGoogleLogin,adminLogin};
