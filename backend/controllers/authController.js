@@ -43,8 +43,8 @@ const logout = async(req,res)=>{
 
 const googleLogin= async (req, res) => {
     try {
-        const { access_token, provider_token } = req.body;
-        if (!access_token || !provider_token) {
+        const { access_token} = req.body;
+        if (!access_token ) {
             return res.status(400).json({ message: "Missing tokens in callback." });
         }
         const response = await supabase.auth.getUser(access_token);
