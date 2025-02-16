@@ -23,7 +23,7 @@ const authMiddleware = (req, res, next) => {
 
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-            if (!decoded.roll_no) {
+            if (!decoded.roll_no && !decoded.username) {
                 logger.warn('Authentication failed: Invalid token payload', {
                     ip: req.ip,
                     path: req.path
