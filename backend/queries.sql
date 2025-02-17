@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS student (
     phn_no VARCHAR(10) NOT NULL,
     year VARCHAR(5) NOT NULL,
     department VARCHAR(20) NOT NULL,
+    referral_source VARCHAR(255),
     created_at TIMESTAMP DEFAULT now()
 );
 

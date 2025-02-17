@@ -8,7 +8,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 const register = async (req, res) => {
     try {
-        const { roll_no, name, phn_no, department, year} = req.body;
+        const { roll_no, name, phn_no, department, year,referral_source} = req.body;
         const { data: existingUser, error: checkError } = await supabase
             .from('student')
             .select('roll_no')
@@ -19,7 +19,7 @@ const register = async (req, res) => {
             return res.status(400).json({ error: "Roll number already exists!" });
         }
         const { data, error } = await supabase.from('student').insert([
-            { roll_no, name, email, phn_no, department, year}
+            { roll_no, name, email, phn_no, department, year,referral_source}
         ]);
 
         if (error) throw error; 
