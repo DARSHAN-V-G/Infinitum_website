@@ -7,9 +7,9 @@ const rateLimit = require('express-rate-limit');
 const logger = require('./config/logger');
 const authRoutes = require('./routes/authRoutes');
 const eventRoutes = require('./routes/eventRoutes');
-const studentRoutes = require('./routes/studentRoutes')
+const studentRoutes = require('./routes/studentRoutes');
 const certificateRoutes = require('./routes/certificateRoutes');
-const attendanceRoutes = require('./routes/attendanceRoutes')
+const attendanceRoutes = require('./routes/attendanceRoutes');
 const bodyParser = require("body-parser");
 
 // Load and validate environment variables
@@ -22,10 +22,41 @@ for (const envVar of requiredEnvVars) {
     }
 }
 
-logger.info("Connected to supabase");
+logger.info("Connected to Supabase");
 const app = express();
 
-// Security middleware
+// ✅ Allow multiple origins for CORS
+const allowedOrigins = ["http://localhost:3000"];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        console.log("CORS Request Origin:", origin);  // ✅ Debugging
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.warn(`Blocked CORS request from: ${origin}`);
+            callback(new Error("CORS policy violation"));
+        }
+    },
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Authorization"]
+}));
+
+// ✅ Handle preflight requests (CORS)
+app.options('*', cors());
+
+// ✅ Force response headers for CORS
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL || "http://localhost:3000");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    next();
+});
+
+// ✅ Security middleware
 app.use(helmet());
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -33,26 +64,12 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
-const allowedOrigins = [process.env.FRONTEND_URL];
-app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            logger.warn(`Blocked request from unauthorized origin: ${origin}`);
-            return callback(new Error('CORS policy violation'), false);
-        }
-        return callback(null, true);
-    },
-    credentials: true,
-}));
-
-// Body parsing middleware
+// ✅ Body parsing middleware
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// Request logging middleware
+// ✅ Request logging middleware
 app.use((req, res, next) => {
     logger.info(`${req.method} ${req.url}`, {
         ip: req.ip,
@@ -61,14 +78,14 @@ app.use((req, res, next) => {
     next();
 });
 
-// Routes
+// ✅ Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/event', eventRoutes);
 app.use('/api/student', studentRoutes);
-app.use("/api/certificate", certificateRoutes);
+app.use('/api/certificate', certificateRoutes);
 app.use('/api/attendance', attendanceRoutes);
 
-// Global error handler
+// ✅ Global error handler
 app.use((err, req, res, next) => {
     logger.error('Unhandled Error:', {
         error: err.message,
@@ -77,24 +94,25 @@ app.use((err, req, res, next) => {
         method: req.method,
         body: req.body
     });
-    
+
     res.status(500).json({
         error: 'Internal Server Error',
         message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
     });
 });
 
-// Handle unhandled routes
+// ✅ Handle unhandled routes
 app.use((req, res) => {
     logger.warn(`404 - Route not found: ${req.method} ${req.url}`);
     res.status(404).json({ error: 'Route not found' });
 });
 
+// ✅ Start the server
 app.listen(process.env.PORT, () => {
     logger.info(`Server is running on http://localhost:${process.env.PORT}`);
 });
 
-// Handle uncaught exceptions
+// ✅ Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
     logger.error('Uncaught Exception:', {
         error: err.message,
@@ -103,7 +121,7 @@ process.on('uncaughtException', (err) => {
     process.exit(1);
 });
 
-// Handle unhandled promise rejections
+// ✅ Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
     logger.error('Unhandled Rejection:', {
         error: err.message,
