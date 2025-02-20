@@ -8,7 +8,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 const register = async (req, res) => {
     try {
-        const { roll_no, name, phn_no, department, year, referral_source } = req.body;
+        const { roll_no, name, phn_no, department, year,referral_source} = req.body;
         const { data: existingUser, error: checkError } = await supabase
             .from('student')
             .select('roll_no')
@@ -19,10 +19,10 @@ const register = async (req, res) => {
             return res.status(400).json({ error: "Roll number already exists!" });
         }
         const { data, error } = await supabase.from('student').insert([
-            { roll_no, name, email, phn_no, department, year, referral_source }
+            { roll_no, name, email, phn_no, department, year,referral_source}
         ]);
 
-        if (error) throw error;
+        if (error) throw error; 
 
         const token = jwt.sign({ roll_no }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
 
@@ -33,57 +33,45 @@ const register = async (req, res) => {
 };
 
 
-const logout = async (req, res) => {
-    res.clearCookie("session");
+const logout = async(req,res)=>{
+    res.clearCookie("session"); 
     res.json({ message: "Logged out successfully" });
 };
 
 
 
 
-const googleLogin = async (req, res) => {
+const googleLogin= async (req, res) => {
     try {
-        const { access_token } = req.body;
-        if (!access_token) {
-            return res.status(400).json({ message: "Missing access token in callback." });
+        const { access_token} = req.body;
+        if (!access_token ) {
+            return res.status(400).json({ message: "Missing tokens in callback." });
         }
-
-        // Get user info from Supabase using the access token
         const response = await supabase.auth.getUser(access_token);
         if (!response.data || !response.data.user) {
             return res.status(400).json({ message: "Invalid user data from Supabase." });
         }
 
         const userInfo = response.data.user;
-        const email = userInfo.email;
+        const email = userInfo.email; 
         if (!email) {
             return res.status(400).json({ message: "User email not found." });
         }
 
-        // Derive roll_no from email (assuming it's the part before '@')
         const roll_no = email.split("@")[0].toUpperCase();
-
-        try {
-            // Check if the student exists in the database
+        try{
             const { data, error } = await supabase
-                .from('student')
-                .select('*')
-                .eq('roll_no', roll_no)
-                .single();
-
-            if (error || !data) {
-                // If student is not found, redirect to the registration page
-                return res.redirect(`${process.env.FRONTEND_URL}/register?name=${userInfo.user_metadata.full_name}&email=${email}`);
-            }
-
-            // If the student exists, create a JWT token and send it to the frontend
-            const token = jwt.sign({ roll_no: data.roll_no }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
-
-            // Redirect to homepage with the token in the query parameter (or modify as per your flow)
-            return res.redirect(`${process.env.FRONTEND_URL}/?token=${token}`);
-
-        } catch (error) {
-            return res.status(404).json({ message: "Student not found" });
+            .from('student') 
+            .select('*')
+            .eq('roll_no', roll_no)
+            .single();
+            const token = jwt.sign({ roll_no : data.roll_no }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+            return res.status(200).json({
+                message: "OAuth login successful!",
+                token, 
+            });
+        }catch(error){
+            return res.status(404).json({ message: 'Student not found' });
         }
 
     } catch (error) {
@@ -91,6 +79,7 @@ const googleLogin = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
 
 
 const handleGoogleLogin = async (req, res) => {
@@ -132,7 +121,7 @@ const adminRegister = async (req, res) => {
 
 const adminLogin = async (req, res) => {
     const { username, password } = req.body;
-
+    
     // Fetch admin from DB
     const { data, error } = await supabase
         .from("admin")
@@ -154,4 +143,4 @@ const adminLogin = async (req, res) => {
     res.json({ message: "Login successful", token });
 };
 
-module.exports = { register, logout, googleLogin, handleGoogleLogin, adminLogin };
+module.exports = { register, logout, googleLogin,handleGoogleLogin,adminLogin};
