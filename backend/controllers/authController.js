@@ -8,7 +8,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 const register = async (req, res) => {
     try {
-        const { roll_no, name, phn_no, department, year,referral_source} = req.body;
+        const { roll_no, name, phn_no, department, year, referral_source } = req.body;
         const { data: existingUser, error: checkError } = await supabase
             .from('student')
             .select('roll_no')
@@ -19,10 +19,10 @@ const register = async (req, res) => {
             return res.status(400).json({ error: "Roll number already exists!" });
         }
         const { data, error } = await supabase.from('student').insert([
-            { roll_no, name, email, phn_no, department, year,referral_source}
+            { roll_no, name, email, phn_no, department, year, referral_source }
         ]);
 
-        if (error) throw error; 
+        if (error) throw error;
 
         const token = jwt.sign({ roll_no }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
 
@@ -33,46 +33,67 @@ const register = async (req, res) => {
 };
 
 
-const logout = async(req,res)=>{
-    res.clearCookie("session"); 
+const logout = async (req, res) => {
+    res.clearCookie("session");
     res.json({ message: "Logged out successfully" });
 };
 
 
 
 
-const googleLogin= async (req, res) => {
+const googleLogin = async (req, res) => {
     try {
-        const { access_token} = req.body;
-        if (!access_token ) {
+        const { access_token } = req.body;
+        if (!access_token) {
             return res.status(400).json({ message: "Missing tokens in callback." });
         }
+
+        // Get user info from Supabase
         const response = await supabase.auth.getUser(access_token);
         if (!response.data || !response.data.user) {
             return res.status(400).json({ message: "Invalid user data from Supabase." });
         }
 
         const userInfo = response.data.user;
-        const email = userInfo.email; 
+        const email = userInfo.email;
+        const name = userInfo.user_metadata?.full_name || userInfo.user_metadata?.name || "Unknown";
+
         if (!email) {
             return res.status(400).json({ message: "User email not found." });
         }
 
         const roll_no = email.split("@")[0].toUpperCase();
-        try{
-            const { data, error } = await supabase
-            .from('student') 
+
+        // Fetch student details
+        const { data, error } = await supabase
+            .from('student')
             .select('*')
             .eq('roll_no', roll_no)
             .single();
-            const token = jwt.sign({ roll_no : data.roll_no }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
-            return res.status(200).json({
-                message: "OAuth login successful!",
-                token, 
+
+        if (error || !data) {
+            return res.status(404).json({
+                message: "Student not found", user: {
+                    name,
+                    email,
+                    roll_no,
+                },
             });
-        }catch(error){
-            return res.status(404).json({ message: 'Student not found' });
         }
+
+        // Generate JWT token
+        const token = jwt.sign({ roll_no: data.roll_no }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+
+        // Return user details in response
+        return res.status(200).json({
+            message: "OAuth login successful!",
+            token,
+            user: {
+                name,
+                email,
+                roll_no,
+            },
+        });
 
     } catch (error) {
         console.error("Error fetching user info:", error.response?.data || error.message);
@@ -121,7 +142,7 @@ const adminRegister = async (req, res) => {
 
 const adminLogin = async (req, res) => {
     const { username, password } = req.body;
-    
+
     // Fetch admin from DB
     const { data, error } = await supabase
         .from("admin")
@@ -143,4 +164,4 @@ const adminLogin = async (req, res) => {
     res.json({ message: "Login successful", token });
 };
 
-module.exports = { register, logout, googleLogin,handleGoogleLogin,adminLogin};
+module.exports = { register, logout, googleLogin, handleGoogleLogin, adminLogin };
