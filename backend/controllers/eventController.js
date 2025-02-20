@@ -54,7 +54,7 @@ const getStudentsByEvent = async (req, res) => {
 
         const { data, error } = await supabase
             .from('registration')
-            .select('roll_no, attended,student:student(name, email, phn_no),attended')
+            .select('roll_no, attended,student:student(name, email, phn_no)')
             .eq('event_id', event_id);
 
         if (error) {
