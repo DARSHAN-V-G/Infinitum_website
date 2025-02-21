@@ -108,7 +108,7 @@ const handleGoogleLogin = async (req, res) => {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${process.env.FRONTEND_URL}/auth/callback`, // Redirect after successful login
+                redirectTo: `https://infinitum-csea.vercel.app/auth/callback`, // Redirect after successful login
             },
         });
 
