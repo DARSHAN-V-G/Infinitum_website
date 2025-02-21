@@ -1,7 +1,7 @@
 const supabase = require('../config/supabase.js')
 
 const putAttendance = async (req,res)=>{
-  const { roll_no, event_id } = req.body;
+  const { roll_no, event_id,attendance } = req.body;
   if(req.user.username!=="infinitum"){
     return res.status(400).json({ error: "Invalid credentials" });
 }
@@ -12,8 +12,8 @@ const putAttendance = async (req,res)=>{
   try {
     const { data, error } = await supabase
       .from('registration')
-      .update({ attended: 1 })
-      .match({ roll_no, event_id, attended: 0 });
+      .update({ attended: attendance })
+      .match({ roll_no, event_id});
 
     if (error) throw error;
 
