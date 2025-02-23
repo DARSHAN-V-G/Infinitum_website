@@ -1,7 +1,8 @@
 const winston = require('winston');
+const LokiTransport = require('winston-loki');
 const path = require('path');
 
-// Define log format
+// Define log format for file and console logging
 const logFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
@@ -9,30 +10,58 @@ const logFormat = winston.format.combine(
     winston.format.json()
 );
 
-// Create logger instance
-const logger = winston.createLogger({
+// Create the standard logger instance
+const standardLogger = winston.createLogger({
     level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
     format: logFormat,
     transports: [
-        // Write all logs with importance level of 'error' or less to 'error.log'
         new winston.transports.File({
             filename: path.join(__dirname, '../logs/error.log'),
             level: 'error',
-            maxsize: 5242880, // 5MB
+            maxsize: 5242880,
             maxFiles: 5,
         }),
-        // Write all logs with importance level of 'info' or less to 'combined.log'
         new winston.transports.File({
             filename: path.join(__dirname, '../logs/combined.log'),
-            maxsize: 5242880, // 5MB
+            maxsize: 5242880,
             maxFiles: 5,
         })
     ],
 });
 
-// If we're not in production, log to the console as well
+// Create Loki logger instance with improved configuration
+const lokiLogger = winston.createLogger({
+    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new LokiTransport({
+            host: process.env.LOKI_HOST || 'http://localhost:3100',
+            labels: {
+                job: 'infinitum-backend',
+                environment: process.env.NODE_ENV || 'development',
+                app: 'infinitum'
+            },
+            json: true,
+            format: winston.format.json(),
+            replaceTimestamp: true,
+            onConnectionError: (err) => {
+                console.error('Loki connection error:', err);
+            },
+            interval: 5, // Batch interval in seconds
+            batching: true, // Enable request batching
+            clearOnError: false, // Don't clear batch on error
+            basicAuth: process.env.LOKI_BASIC_AUTH, // Optional: Add if you have auth enabled
+            timeout: 10000 // Timeout in ms
+        })
+    ]
+});
+
+// Add console transport in non-production
 if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
+    standardLogger.add(new winston.transports.Console({
         format: winston.format.combine(
             winston.format.colorize(),
             winston.format.simple()
@@ -40,9 +69,49 @@ if (process.env.NODE_ENV !== 'production') {
     }));
 }
 
-// Create a stream object for Morgan
-logger.stream = {
-    write: (message) => logger.info(message.trim())
+// Enhanced combined logger with metadata support
+const logger = {
+    error: (message, meta = {}) => {
+        const logData = {
+            ...meta,
+            timestamp: new Date().toISOString()
+        };
+        standardLogger.error(message, logData);
+        lokiLogger.error(message, logData);
+    },
+    warn: (message, meta = {}) => {
+        const logData = {
+            ...meta,
+            timestamp: new Date().toISOString()
+        };
+        standardLogger.warn(message, logData);
+        lokiLogger.warn(message, logData);
+    },
+    info: (message, meta = {}) => {
+        const logData = {
+            ...meta,
+            timestamp: new Date().toISOString()
+        };
+        standardLogger.info(message, logData);
+        lokiLogger.info(message, logData);
+    },
+    debug: (message, meta = {}) => {
+        const logData = {
+            ...meta,
+            timestamp: new Date().toISOString()
+        };
+        standardLogger.debug(message, logData);
+        lokiLogger.debug(message, logData);
+    },
+    stream: {
+        write: (message) => {
+            const logData = {
+                timestamp: new Date().toISOString()
+            };
+            standardLogger.info(message.trim(), logData);
+            lokiLogger.info(message.trim(), logData);
+        }
+    }
 };
 
 module.exports = logger;

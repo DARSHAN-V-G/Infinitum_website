@@ -33,6 +33,18 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+
+logger.stream = {
+    write: function (message) {
+      logger.info(message.trim());
+    },
+  };
+  
+  // Override logger.log to use winston
+  logger.log = function (message) {
+    logger.info(message);
+  };
+
 // CORS configuration
 const allowedOrigins = [process.env.FRONTEND_URL, "https://infinitum-csea.vercel.app"];
 app.use(cors({
@@ -70,25 +82,31 @@ app.use('/api/attendance', attendanceRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
-    logger.error('Unhandled Error:', {
-        error: err.message,
-        stack: err.stack,
-        url: req.url,
-        method: req.method,
-        body: req.body
+    logger.error({
+      message: err.message,
+      stack: err.stack,
+      status: err.status || 500,
+      route: req.originalUrl,
+      method: req.method,
+      ip: req.ip,
     });
-
-    res.status(500).json({
-        error: 'Internal Server Error',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    res.status(err.status || 500).send({
+      error: {
+        message: err.message,
+      },
     });
-});
+  });
+  
 
 // Handle unhandled routes
 app.use((req, res) => {
     logger.warn(`404 - Route not found: ${req.method} ${req.url}`);
     res.status(404).json({ error: 'Route not found' });
 });
+
+app.get("/", async (req, res) => {
+    res.send("Welcome to the Infinitum Backend SDK");
+  });
 
 app.listen(process.env.PORT, () => {
     logger.info(`Server is running on http://localhost:${process.env.PORT}`);

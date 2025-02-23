@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  backend:
+    image: darshan122205/infinitum-backend:latest
+    container_name: infinitum-backend
+    ports:
+      - "3000:8080"
+    env_file:
+      - .env
+    restart: always
