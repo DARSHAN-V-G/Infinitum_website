@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const logger = require('../config/logger.js');
