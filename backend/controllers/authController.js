@@ -18,7 +18,7 @@ const register = async (req, res) => {
             .select('roll_no')
             .eq('roll_no', roll_no)
             .single();
-        
+
         if (existingUser) {
             logger.error(`Registration failed: Roll number ${roll_no} already exists`);
             return res.status(400).json({ error: "Roll number already exists!" });
@@ -93,7 +93,7 @@ const handleGoogleLogin = async (req, res) => {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `https://infinitum-csea.vercel.app/auth/callback`,
+                redirectTo: `${process.env.FRONTEND_URL}/auth/callback`,
             },
         });
 
