@@ -13,7 +13,7 @@ This is the backend for the **Infinitum Registration Website**. It provides APIs
 
 2. **Run the Docker Container**  
    ```bash
-   docker run -p 3000:3000 --env-file .env darshan122205/infinitum-backend:latest
+   docker run -p 5500:5500 --env-file .env darshan122205/infinitum-backend:latest
    ```
 
 ---
