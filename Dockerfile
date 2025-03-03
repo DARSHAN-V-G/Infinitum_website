@@ -17,7 +17,7 @@ RUN mkdir -p logs
 RUN mkdir -p public
 
 # Expose the port your app runs on
-EXPOSE 5500
+EXPOSE 7000
 
 # Start the application
 CMD ["node", "server.js"]
