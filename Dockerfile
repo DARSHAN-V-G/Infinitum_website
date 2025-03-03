@@ -3,8 +3,6 @@ FROM node:18-slim
 # Set the working directory inside the container
 WORKDIR /app
 
-
-
 # Copy package.json and package-lock.json for dependency installation
 COPY backend/package*.json ./
 
@@ -19,7 +17,7 @@ RUN mkdir -p logs
 RUN mkdir -p public
 
 # Expose the port your app runs on
-EXPOSE 8080
+EXPOSE 5500
 
 # Start the application
 CMD ["node", "server.js"]
