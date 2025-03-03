@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   backend:
@@ -8,6 +8,12 @@ services:
     container_name: infinitum-backend
     ports:
       - "3000:8080"
-    env_file:
-      - .env
     restart: always
+    environment:
+      - SUPABASE_URL=https://ndvarmaytuockdhspkiu.supabase.co
+      - SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kdmFybWF5dHVvY2tkaHNwa2l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg2ODk2NzUsImV4cCI6MjA1NDI2NTY3NX0.fXR7J1UsUyMQGxh2LJpTz1c8a2Gf8d4p9hsZomBloac
+      - PORT=4000
+      - FRONTEND_URL=http://localhost:3000
+      - JWT_SECRET_KEY=1ac2a41540fc3fd002127bd101bb7184a6c93435312dc1cd51098c5826dbfd19f617619969314c08d7c668e15693c33d0db658ff95950073b
+      - LOKI_HOST=http://localhost:3100
+      - NODE_ENV=development
