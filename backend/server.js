@@ -46,7 +46,7 @@ logger.log = function (message) {
 };
 
 // CORS configuration
-const allowedOrigins = [process.env.FRONTEND_URL, "https://infinitum-csea.vercel.app",];
+const allowedOrigins = [process.env.FRONTEND_URL, "https://infinitum-csea.vercel.app","https://infinitum.psgtech.ac.in"];
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
