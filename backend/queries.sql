@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS student (
     year VARCHAR(5) NOT NULL,
     department VARCHAR(20) NOT NULL,
     referral_source VARCHAR(255),
-    referral VARCHAR(255), --  name of the student who referred
     created_at TIMESTAMP DEFAULT now()
 );
 
@@ -25,5 +24,5 @@ CREATE TABLE IF NOT EXISTS registration (
     registered_at TIMESTAMP DEFAULT now(),
     PRIMARY KEY (roll_no, event_id),
     FOREIGN KEY (roll_no) REFERENCES student(roll_no) ON DELETE CASCADE,
-    FOREIGN KEY (event_id) REFERENCES event(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES event(event_id) ON DELETE CASCADE
 );
