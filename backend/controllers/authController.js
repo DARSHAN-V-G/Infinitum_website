@@ -10,7 +10,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 const register = async (req, res) => {
     try {
-        const { roll_no, name, phn_no, department, year, referral_source , referral} = req.body;
+        const { roll_no, name, phn_no, department, year, source , referral} = req.body;
         logger.info(`Register attempt for roll_no: ${roll_no}`);
 
         const { data: existingUser, error: checkError } = await supabase
@@ -27,7 +27,7 @@ const register = async (req, res) => {
         const email = `${roll_no.toLowerCase()}@psgtech.ac.in`;
 
         const { data, error } = await supabase.from('student').insert([
-            { roll_no, name, email, phn_no, department, year, referral_source, referral}
+            { roll_no, name, email, phn_no, department, year, source, referral}
         ]);
 
         if (error) throw error;
