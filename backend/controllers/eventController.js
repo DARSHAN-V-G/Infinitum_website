@@ -93,7 +93,7 @@ const getStudentsByEvent = async (req, res) => {
         }
 
         logger.info(`Successfully fetched ${data.length} students for event ${event_id}`);
-        res.json(data);
+        res.status(201).json(data);
     } catch (err) {
         logger.error("Unexpected server error:", err);
         res.status(500).json({ error: "Internal Server Error" });
@@ -128,4 +128,29 @@ const createEvent = async (req, res) => {
     }
 };
 
-module.exports = { registerForEvent, getAllEvents, getStudentsByEvent, createEvent };
+const generalRegistration = async(req,res)=>{
+    try{
+        if(req.user.username!=='infinitum'){
+            logger.warn("Unauthorized access attempt by user:", req.user.username);
+            return res.status(403).json({ error: "Invalid credentials" });
+        }
+        const {data,error} = await supabase
+                            .from('student')
+                            .select('roll_no,name,email,phn_no,referral');
+        const dataWithSno = data.map((record, index) => ({
+                                sno: index + 1,
+                                ...record
+                            }));
+        if(error){
+            logger.error("Supabase error while fetching general registration students:", error);
+            return res.status(500).json({ error: error.message });
+        }
+        res.status(201).json(dataWithSno);
+
+    }catch(err){
+        logger.error("Error in fetching general registration list : ",err);
+        res.status(500).json({error : "Internal Server Error"});
+    }
+}
+
+module.exports = { registerForEvent, getAllEvents, getStudentsByEvent, createEvent,generalRegistration };
