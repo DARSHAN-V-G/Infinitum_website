@@ -56,16 +56,8 @@ const registerForEvent = async (req, res) => {
 
 const getAllEvents = async (req, res) => {
     try {
-        logger.info("Fetching all events...");
-        const { data, error } = await supabase.from('event').select('*');
-
-        if (error) {
-            logger.error("Error fetching events:", error);
-            return res.status(500).json({ error: error.message });
-        }
-
-        logger.info("Successfully fetched events");
-        res.status(200).json(data);
+        const message = "The backend is up!"
+        res.status(200).json(message);
     } catch (err) {
         logger.error("Unexpected server error:", err);
         res.status(500).json({ error: "Internal Server Error" });
