@@ -59,6 +59,10 @@ app.use(cors({
   credentials: true,
 }));
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the Infinitum Backend SDK");
+});
+
 // Body parsing middleware
 app.use(express.json());
 app.use(bodyParser.json());
